@@ -4,7 +4,7 @@ An automated scoring system for darts using two raspberry Pi's with pi cameras a
 
 Included is a basic implementation of X01 and a implementation of cricket is in progress. Other games may be added in the future. 
 
-This method uses two raspberry pi cameras each with a pi camera. Two usb webcams could also be used and this would probably allow a single Pi to be used with some modification of the code.
+This method uses two raspberry pi's each with a pi camera. Two usb webcams could also be used and this would probably allow a single Pi to be used with some modification of the code.
 
 This is still a work in progress and will likely not work as is.
 There are many areas that still need work including the segmentation and detection for the impact point of the darts.
