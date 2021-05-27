@@ -91,10 +91,14 @@ class CameraStreams:
         dart = 1
 
         while self.stream:
+
+            #set comp_frame as background frame.
+            comp_frame = self.backFrame1.copy()
+
             #get difference between current frame and background
             ret,cam = cap.read()
             gray = cv2.cvtColor(cam.copy(), cv2.COLOR_BGR2GRAY)
-            gray_diff = cv2.absdiff(gray, cv2,cvtColor(self.backFrame1.copy(),cv2.COLOR_BGR2GRAY))
+            gray_diff = cv2.absdiff(gray, cv2,cvtColor(comp_frame,cv2.COLOR_BGR2GRAY))
             retval, thresh = cv2.threshold(gray_diff, 80, 255, cv2.THRESH_BINARY)
            
            #count non zero pixels after thresh  
@@ -107,9 +111,15 @@ class CameraStreams:
                 if dart == 1:
                     self.d1_frame1 = cam.copy() 
                     self.d1_frame2 = getCamTwoFrame(self.camTwoSock)
+                    #update comp_frame to d1_frame1
+                    comp_frame = self.d1_frame1.copy()
+                
                 elif dart == 2:
                     self.d2_frame1 = cam.copy() 
                     self.d2_frame2 = getCamTwoFrame(self.camTwoSock)
+                    #update comp_frame to d2_frame1
+                    comp_frame = self.d2_frame1.copy()
+                
                 elif dart == 3:
                     self.d3_frame1 = cam.copy() 
                     self.d3_frame2 = getCamTwoFrame(self.camTwoSock)
