@@ -13,20 +13,31 @@ There are many areas that still need work including the segmentation and detecti
 ## Requirements
 
 Raspberry Pi x2 with Pi cameras or webcams 
+
 Python
+
 OpenCV
+
 Qt5
+
 numpy
+
 skimage
+
 paramiko
+
 pickle
 
 ## Installation
 
 Install the requirements.
+
 Move camera_1 folder to first Raspberry Pi and camera_2 folder to the second one.
+
 Assign fixed ip addresses to each raspberry pi.
+
 Update the `TCP_IP` and `TCP_PORT` parameters in camera_streams.py with the correct details.
+
 Connect to the first Raspberry Pi via ssh using the -X flag.
 (At the moment an SSH connection is used to the first Raspberry Pi with X11 forwarding enabled to show the UI on the computer. In the future I hope to use a screen connected to the Raspberry Pi and control everything from there without the need for an extra pc.)
 
@@ -38,8 +49,11 @@ Use `python start_window.py` from the camera_1 folder to start the UI.
 This is not an exhaustive list, just the main things.
 
 Improve dart detection and segmentation
+
 Adjusting for dart impact angle
+
 More robust calibration
+
 Complete cricket implementation
 
 
