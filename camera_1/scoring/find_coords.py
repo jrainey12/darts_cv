@@ -6,10 +6,11 @@ from skimage.metrics import structural_similarity
 #TODO: Rewrite this more cleanly.
 
 
-def main(frames):
+def main(c1_frames,c2_frames):
     """
     Get the pixel location of the dart from each camera.
-    param: frames - list containing background and dart frames from camera 1 and camera 2.
+    param: c1_frames - list containing background and dart frames from camera 1.
+    param: c2_frames - list containing background and dart frames from camera 2.
     return: ([c1_x,c1_y],[c2_x,c2_y]) - tuple of the xy coordinates of the darts
     from the two cameras.
     """
@@ -27,8 +28,8 @@ def main(frames):
    #Get the dart  coords
     
     #DART 1
-    d1_c1 = [frames[0],frames[1]]
-    d1_c2 = [frames[4],frames[5]]
+    d1_c1 = [c1_frames[0],c1_frames[1]]
+    d1_c2 = [c2_frames[0],c2_frames[1]]
     # Dart  X COORD
     c1_x,c1_y = get_coord(d1_c1[0][top:top+h,left:left+w],d1_c1[1][top:top+h,left:left+w].copy(),1)
     # Dart  Y COORD
@@ -45,8 +46,8 @@ def main(frames):
     d1_score = triangulate([c1_x,c1_y],[c2_x, c2_y])
 
     #DART 2
-    d2_c1 = [frames[1],frames[2]]
-    d2_c2 = [frames[5],frames[6]]
+    d2_c1 = [c1_frames[1],c1_frames[2]]
+    d2_c2 = [c2_frames[1],c2_frames[2]]
     # Dart  X COORD
     c1_x,c1_y = get_coord(d2_c1[0][top:top+h,left:left+w],d2_c1[1][top:top+h,left:left+w].copy(),1)
     # Dart  Y COORD
@@ -63,8 +64,8 @@ def main(frames):
     d2_score = triangulate([c1_x,c1_y],[c2_x, c2_y])
 
     #DART 3
-    d3_c1 = [frames[2],frames[3]]
-    d3_c2 = [frames[6],frames[7]]
+    d3_c1 = [c1_frames[2],c1_frames[3]]
+    d3_c2 = [c2_frames[2],c2_frames[3]]
     # Dart  X COORD
     c1_x,c1_y = get_coord(d3_c1[0][top:top+h,left:left+w],d3_c1[1][top:top+h,left:left+w].copy(),3)
     # Dart  Y COORD

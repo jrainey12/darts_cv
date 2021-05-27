@@ -14,14 +14,18 @@ class CameraStreams:
         self.TCP_PORT = 5090
         self.stream = False
         self.camTwoSock = None
-        self.backFrame1 = None
-        self.backFrame2 = None
-        self.d1_frame1 = None
-        self.d1_frame2 = None
-        self.d2_frame1 = None
-        self.d2_frame2 = None
-        self.d3_frame1 = None
-        self.d3_frame2 = None
+
+        c1_frames = [None,None,None,None]
+        c2_frames = [None,None,None,None]
+
+        #self.backFrame1 = None
+        #self.backFrame2 = None
+        #self.d1_frame1 = None
+        #self.d1_frame2 = None
+        #self.d2_frame1 = None
+        #self.d2_frame2 = None
+        #self.d3_frame1 = None
+        #self.d3_frame2 = None
 
 
 
@@ -41,18 +45,18 @@ class CameraStreams:
         client.connect(self.TCP_IP, username='pi', password='dartsraspi')
         stdin,stdout,stderr = client.exec_command('python3 /home/pi/camera_2/camera_2.py')
 
-    def getCamTwoFrame(self,sock):
+    def getCamTwoFrame(self):
         """
         Return a captured frame from camera 2.
         param: sock - socket to receive data from.
         return: cam_2 - frame from camera 2.
         """
-        sock.sendall(b'Hello')
+        self.camTwoSock.sendall(b'Hello')
         length = None
         print("Waiting on length...")
-        length = sock.recv(7)
+        length = self.camTwoSock.recv(7)
         print(length)
-        cam_2_data = recvall(sock,int((length)))
+        cam_2_data = recvall(self.camTwoSock,int((length)))
         cam_2_frame = np.frombuffer(cam_2_data,dtype=np.uint8)
         cam_2 = cam_2_frame.reshape(1280,720,3)
 
@@ -82,9 +86,10 @@ class CameraStreams:
             
         # save background frames
         ret, cam = cap.read()
-        self.backFrame1 = cam
-        self.backFrame2 = self.getCamTwoFrame(self.camTwoSock)
-        
+        self.c1_frames[0] = cam
+        self.c2_frames[0] = self.getCamTwoFrames()
+
+                
         #min and max threshold counts.
         t_min = 5
         t_max = 10000
@@ -93,37 +98,24 @@ class CameraStreams:
         while self.stream:
 
             #set comp_frame as background frame.
-            comp_frame = self.backFrame1.copy()
-
+            comp_frame = self.c1_frames[0].copy()
             #get difference between current frame and background
             ret,cam = cap.read()
             gray = cv2.cvtColor(cam.copy(), cv2.COLOR_BGR2GRAY)
             gray_diff = cv2.absdiff(gray, cv2,cvtColor(comp_frame,cv2.COLOR_BGR2GRAY))
             retval, thresh = cv2.threshold(gray_diff, 80, 255, cv2.THRESH_BINARY)
            
-           #count non zero pixels after thresh  
+            #count non zero pixels after thresh  
             non_zero = cv2.countNonZero(thresh)
             
             #If within ranges save frames
             if non_zero > t_min and non_zero < t_max:
-                
+                          
                 print("Dart Found")
-                if dart == 1:
-                    self.d1_frame1 = cam.copy() 
-                    self.d1_frame2 = getCamTwoFrame(self.camTwoSock)
-                    #update comp_frame to d1_frame1
-                    comp_frame = self.d1_frame1.copy()
-                
-                elif dart == 2:
-                    self.d2_frame1 = cam.copy() 
-                    self.d2_frame2 = getCamTwoFrame(self.camTwoSock)
-                    #update comp_frame to d2_frame1
-                    comp_frame = self.d2_frame1.copy()
-                
-                elif dart == 3:
-                    self.d3_frame1 = cam.copy() 
-                    self.d3_frame2 = getCamTwoFrame(self.camTwoSock)
-               
+                self.d1_frames[dart] = cam.copy()
+                self.d2_frames[dart] = getCamTwoFrame(self.camTwoSock)
+                comp_frame = self.d1_frames[dart].copy()
+   
                 dart += 1
                 
                 if dart > 3:
@@ -146,27 +138,21 @@ class CameraStreams:
         return buf
 
     def reset(self):
-       """
-       Reset the frames at the end of a turn.
-       """
+        """
+        Reset the frames at the end of a turn.
+        """
         self.stream = False
         self.camTwoSock = None
-        self.backFrame1 = None
-        self.backFrame2 = None
-        self.d1_frame1 = None
-        self.d1_frame2 = None
-        self.d2_frame1 = None
-        self.d2_frame2 = None
-        self.d3_frame1 = None
-        self.d3_frame2 = None
-
+        self.c1_frames = [None,None,None,None]
+        self.c1_frames = [None,None,None,None]
 
     def getFrames(self):
         """
         Return the 8 frames captured.
         """
-        return ([self.backFrame1,self.d1_frame1,self.d2_frame1,self.d3_frame1,
-            self.backFrame2,self.d1_frame2,self.d2_frame2,self.d3_frame2])
+        return (self.c1_frames,self.c2_frames)
+        #return ([self.backFrame1,self.d1_frame1,self.d2_frame1,self.d3_frame1,
+        #    self.backFrame2,self.d1_frame2,self.d2_frame2,self.d3_frame2])
 
     def getSock(self):
         """

@@ -134,6 +134,7 @@ class StartWindow(QMainWindow):
 
         if gt == 1:
             self.game_type = x01()
+            self.game_type.setMaxScore(int(self.score.currentText()))
 
         print ("Game type updated to " + str(gt)) 
         self.updateUI(gt)
