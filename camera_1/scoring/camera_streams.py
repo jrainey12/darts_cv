@@ -18,16 +18,6 @@ class CameraStreams:
         c1_frames = [None,None,None,None]
         c2_frames = [None,None,None,None]
 
-        #self.backFrame1 = None
-        #self.backFrame2 = None
-        #self.d1_frame1 = None
-        #self.d1_frame2 = None
-        #self.d2_frame1 = None
-        #self.d2_frame2 = None
-        #self.d3_frame1 = None
-        #self.d3_frame2 = None
-
-
 
     def connectCamTwo(self):
         """
@@ -88,8 +78,7 @@ class CameraStreams:
         ret, cam = cap.read()
         self.c1_frames[0] = cam
         self.c2_frames[0] = self.getCamTwoFrames()
-
-                
+ 
         #min and max threshold counts.
         t_min = 5
         t_max = 10000
@@ -112,17 +101,48 @@ class CameraStreams:
             if non_zero > t_min and non_zero < t_max:
                           
                 print("Dart Found")
-                self.d1_frames[dart] = cam.copy()
-                self.d2_frames[dart] = getCamTwoFrame(self.camTwoSock)
-                comp_frame = self.d1_frames[dart].copy()
+                self.c1_frames[dart] = cam.copy()
+                self.c2_frames[dart] = getCamTwoFrame(self.camTwoSock)
+                comp_frame = self.c1_frames[dart].copy()
    
                 dart += 1
                 
                 if dart > 3:
 
                     self.stream = False
-                
-    
+                    self.shutdownSocket() 
+
+    def captureCalibFrame(self,idx):
+        """
+        Capture a frame from each camera to be used for calibration.
+        param: idx - the index of the calibration point.
+        return: f1,f2 - frames from cameras 1 and 2.
+        """
+
+        #TODO: May have to initialise this elsewhere to prevent the delay from
+        #trying to reconnect to the same socket too soon.
+        #self.stream = True
+        #self.startCamTwoStream()
+        #self.connectCamTwo()
+
+        #start camera 1
+        cap = cv2.VideoCapture(0)
+        cap.set(3,1280)
+        cap.set(4,720)
+        ret,frame = cap.read()
+            
+        #discard first 10 frames
+        for x in range(10):
+            ret,frame = cap.read()
+            
+        # save background frames
+        ret, cam = cap.read()
+        f1 = cam
+        f2 =  self.getCamTwoFrames()
+
+        return f1,f2
+
+
     def recvall(self,sock, count):
         """
         Receive values from a socket.
@@ -146,13 +166,19 @@ class CameraStreams:
         self.c1_frames = [None,None,None,None]
         self.c1_frames = [None,None,None,None]
 
+    def shutdownSocket(self):
+        """
+        Shutdown the open socket after transfer is complete.
+        """
+
+        self.camTwoSock.shutdown()
+        self.camTwoSock.close()
+
     def getFrames(self):
         """
-        Return the 8 frames captured.
+        Return the frames captured from camera 1 and camera 2.
         """
         return (self.c1_frames,self.c2_frames)
-        #return ([self.backFrame1,self.d1_frame1,self.d2_frame1,self.d3_frame1,
-        #    self.backFrame2,self.d1_frame2,self.d2_frame2,self.d3_frame2])
 
     def getSock(self):
         """

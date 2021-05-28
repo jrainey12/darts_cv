@@ -8,9 +8,9 @@ from skimage.metrics import structural_similarity
 
 def main(c1_frames,c2_frames):
     """
-    Get the pixel location of the dart from each camera for all three darts.
-    param: c1_frames - list containing background and dart frames from camera 1.
-    param: c2_frames - list containing background and dart frames from camera 2.
+    Get the pixel location of the dart from each camera for a single dart.
+    param: c1_frames - list containing background and dart frame from camera 1.
+    param: c2_frames - list containing background and dart frame from camera 2.
     return: ([c1_x,c1_y],[c2_x,c2_y]) - tuple of the xy coordinates of the darts
     from the two cameras.
     """
@@ -27,7 +27,7 @@ def main(c1_frames,c2_frames):
 
    #Get the dart  coords
     
-    #DART 1
+    #DART
     d1_c1 = [c1_frames[0],c1_frames[1]]
     d1_c2 = [c2_frames[0],c2_frames[1]]
     # Dart  X COORD
@@ -41,47 +41,11 @@ def main(c1_frames,c2_frames):
     #    c2_x = 0
     #    c2_y = 0
 
-    print ("Dart 1 Coords: ", c1_x,c1_y,c2_x, c2_y)
+    print ("Dart Coords: ", c1_x,c1_y,c2_x, c2_y)
 
-    d1_score = triangulate([c1_x,c1_y],[c2_x, c2_y])
+    d_score = triangulate([c1_x,c1_y],[c2_x, c2_y])
 
-    #DART 2
-    d2_c1 = [c1_frames[1],c1_frames[2]]
-    d2_c2 = [c2_frames[1],c2_frames[2]]
-    # Dart  X COORD
-    c1_x,c1_y = get_coord(d2_c1[0][top:top+h,left:left+w],d2_c1[1][top:top+h,left:left+w].copy(),1)
-    # Dart  Y COORD
-    c2_x,c2_y = get_coord(d2_c2[0][top_2:top_2+h_2,left_2:left_2+w_2],d2_c2[1][top_2:top_2+h_2,left_2:left_2+w_2].copy(),2)
-
-    #if c1_x == None or c2_x == None:
-    #    c1_x = 1280
-    #    c1_y = 0
-    #    c2_x = 0
-    #    c2_y = 0
-
-    print ("Dart 2 Coords: ", c1_x,c1_y,c2_x, c2_y)
-
-    d2_score = triangulate([c1_x,c1_y],[c2_x, c2_y])
-
-    #DART 3
-    d3_c1 = [c1_frames[2],c1_frames[3]]
-    d3_c2 = [c2_frames[2],c2_frames[3]]
-    # Dart  X COORD
-    c1_x,c1_y = get_coord(d3_c1[0][top:top+h,left:left+w],d3_c1[1][top:top+h,left:left+w].copy(),3)
-    # Dart  Y COORD
-    c2_x,c2_y = get_coord(d3_c2[0][top_2:top_2+h_2,left_2:left_2+w_2],d3_c2[1][top_2:top_2+h_2,left_2:left_2+w_2].copy(),3)
-
-    #if c1_x == None or c2_x == None:
-    #    c1_x = 1280
-    #    c1_y = 0
-    #    c2_x = 0
-    #    c2_y = 0
-
-    print ("Dart 3 Coords: ", c1_x,c1_y,c2_x, c2_y)
-
-    d3_score = triangulate([c1_x,c1_y],[c2_x, c2_y])
-
-    return d1_score,d2_score,d3_score
+    return d_score
     
 def get_coord(frame_1, frame_2, dart):
 

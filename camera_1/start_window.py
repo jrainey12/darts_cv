@@ -4,7 +4,7 @@ from PyQt5.QtGui import *
 import sys
 from player_window import PlayerWindow
 from games.x01 import x01
-from calibration.calibrate_cameras import main as calibrate
+from calibrate_window import CalibWindow
 
 class StartWindow(QMainWindow):
     """
@@ -153,8 +153,7 @@ class StartWindow(QMainWindow):
         Show the calibration window.
         """
         print("Starting calibration!") 
-        #CalibWindow().show()
-        calibrate()
+        CalibWindow().show()
 
     def show_new_window(self, checked):
         """

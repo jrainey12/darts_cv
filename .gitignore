@@ -1,5 +1,7 @@
-*.jpg
-__pycache__/
+calib_images/
+test/seg_out/
+camera_1/test_imgs/
+**/__pycache__/
 *.png
 *.pyc
 *.pdf
