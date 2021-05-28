@@ -1,23 +1,26 @@
-from find_coords_single import main as find_coords
+import numpy as np
 import cv2
+from find_coords import FindCoords
 from triangulate import main as triangulate
 
 def main():
 
-    c1_frames = []
-    c2_frames = []
+    find_coords = FindCoords()
 
-    c1_frames.append(cv2.imread("calib_images/test/test_frame_1.jpg"))
-    c1_frames.append(cv2.imread("calib_images/test/back_1.jpg"))
-    c2_frames.append(cv2.imread("calib_images/test/test_frame_2.jpg"))
-    c2_frames.append(cv2.imread("calib_images/test/back_2.jpg"))
-    
-    
-    find_coords(c1_frames, c2_frames, 1)
+    coords =[None,None,None,None]
 
-    triangulate()    
+    back = cv2.imread("test_imgs/c1_back.png")
+    dart = cv2.imread("test_imgs/c1_dart_1.png")
+    c1_x, c1_y = find_coords.findCoords(back,dart,1)
 
+    back_2 = cv2.imread("test_imgs/c2_back.png")
+    dart_2 = cv2.imread("test_imgs/c2_dart_1.png")
+    c2_x, c2_y = find_coords.findCoords(back_2,dart_2,2)
+
+ 
+#    score = triangulate([c1_x,c1_y],[c2_x,c2_y])
+
+#    print (score)
 
 if __name__=='__main__':
-
     main()

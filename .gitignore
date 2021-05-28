@@ -1,6 +1,8 @@
 calib_images/
 test/seg_out/
 camera_1/test_imgs/
+camera_1/scoring/test_imgs/
+camera_1/scoring/seg_out/
 **/__pycache__/
 *.png
 *.pyc

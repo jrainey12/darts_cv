@@ -12,8 +12,8 @@ def main(c1_coords,c2_coords):
     """
     #Dart pixel location
     #TODO: Get pixel coordinate of dart using auto segmentation method.
-    #dart = [[832,375],[852,430]]
-    dart = [c1_coords,c2_coords]
+    dart = [[832,375],[852,430]]
+    #dart = [c1_coords,c2_coords]
     #Load camera calibration params and boundary points from pkl file.
     params = pkl.load(open("calib_params.pkl",'rb'))
  
