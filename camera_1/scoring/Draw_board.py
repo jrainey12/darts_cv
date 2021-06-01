@@ -29,12 +29,16 @@ def main(x,y):
 
     #Scale the values to the outer double size.
     scalar = (mults[0]*2)/100
-    diff = 4 - scalar/2
-    print ("Scalar: ", scalar, "Diff: ", diff)
+#    diff = 4 - scalar/2
+    #print ("Scalar: ", scalar, "Diff: ", diff)
 
 #    point = (np.float32(((100-x)*scalar)+(100*diff)), np.float32(((100-y)*scalar)+(100*diff))) 
+ 
     flat_diff = 60
-    point = (np.float32(((100-x)*scalar)+flat_diff),np.float32(((100-y)*scalar)+flat_diff))     
+    x = np.float32(((100-x)*scalar)+flat_diff)
+    y = np.float32(((100-y)*scalar)+flat_diff)     
+
+    point = (x,y)
     point_v = (point[0]-(width/2), point[1]-(width/2))
     print ("POINT: ",point, "Point_v: ", point_v)
 

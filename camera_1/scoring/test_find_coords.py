@@ -69,21 +69,46 @@ def main():
 
 #    print (c1_frames)
 #    print (c2_frames)
-    print("Finding coordinates...")
+#    print("Finding coordinates...")
     coords = find_coords.findCoordsMulti(c1_frames,c2_frames)
 
-#    print(coords)
+    print(coords)
+    
+    if None in coords[0][0] or None in coords[0][1]:
+        
+        print("Out of scoring area.")
+        s_1 = [0,0]
 
-    s_1 = triangulate(coords[0][0],coords[0][1])
-    s_2 = triangulate(coords[1][0],coords[1][1])
-    s_3 = triangulate(coords[2][0],coords[2][1])
+    else:
+   
+        s_1 = triangulate(coords[0][0],coords[0][1])
+    
+    
+    if None in coords[1][0] or None in coords[1][1]:
 
+        print("Out of scoring area.")
+        s_2 = [0,0]
+
+    else:
+
+        s_2 = triangulate(coords[1][0],coords[1][1])
+
+             
+    if None in coords[2][0] or None in coords[2][1]:
+        
+        print("Out of scoring area.")
+        s_3 = [0,0]
+
+    else:
+
+        s_3 = triangulate(coords[2][0],coords[2][1])
+     
+   
     print(s_1,s_2,s_3)
-#  cameraStreams.closeCamTwo()
- 
-#    score = triangulate([c1_x,c1_y],[c2_x,c2_y])
 
- #   print (score)
+#   cameraStreams.closeCamTwo()
+ 
+
 
 def capFrames(cameraStreams):
 

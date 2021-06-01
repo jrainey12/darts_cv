@@ -12,14 +12,10 @@ def main(c1_coords,c2_coords):
     return: score - the score of the dart.
     """
     #Dart pixel location
-    #TODO: Get pixel coordinate of dart using auto segmentation method.
- #   dart = [[832,375],[852,430]]
     dart = [c1_coords,c2_coords]
- #   dart = [[590, 232], [537, 170]]
 
-    print ("DART: ", dart)
+    #print ("DART: ", dart)
 
-#    dart = [[1038,482],[899,324]]
     #Load camera calibration params and boundary points from pkl file.
     params = pkl.load(open("calib_params.pkl",'rb'))
  
@@ -30,17 +26,13 @@ def main(c1_coords,c2_coords):
     bot = params["bot"]
 
     #Check if dart is within outer bounds
-#    if check_bounds(0,dart,left,right,top,bot) or check_bounds(1,dart,left,right,top,bot):
+    if check_bounds(0,dart,left,right,top,bot) or check_bounds(1,dart,left,right,top,bot):
         
-#        print(left)
-#        print(right)
-#        print(top)
-#        print(bot)
+        logging.info("Dart is outside of camera bounds.")
+        
+        score = [0,0]
 
-#        score = 0
-#        logging.info("Score: " + str(score))
-
-#        return score
+        return score
      
     #Array of outer points and dart points
     #x1 = cam 1, x2 = cam 2
@@ -53,11 +45,10 @@ def main(c1_coords,c2_coords):
     
     x1_und = cv2.undistortPoints(x1,params["mtx_1"],params["dist_1"],
             x1_und,params["R1"],params["P1"])
+
     x2_und = cv2.undistortPoints(x2,params["mtx_2"],params["dist_2"],
             x2_und,params["R2"],params["P2"])
 
-    #print ("x1: ", x1_und)
-    #print ("x2: ", x2_und)
 
 
     #triangulate the outer points and dart points 
@@ -101,7 +92,7 @@ def main(c1_coords,c2_coords):
     board_x = 100 - z_norm
     board_y = x_norm
 
-    print ("BD:",board_x,board_y)
+    #print ("BD:",board_x,board_y)
     #Get score and board model from Draw_board
     sector,mult, board = get_score(board_x,board_y)
 #    logging.info("Dart Score: " + str(score))
@@ -129,18 +120,27 @@ def check_bounds(idx,dart,left,right,top,bot):
     if idx == 0:
         if ((dart[idx][1] > left[idx][1]) or (dart[idx][1] < right[idx][1]) or
             (dart[idx][0] < bot[idx][0]) or (dart[idx][0] > top[idx][0])):
+ 
             logging.debug("idx: " +  str(idx) + " " + str(dart[idx][0]) +
                     " " + str(left[idx][0])) 
 
             return True
+
+        else:
+
+            return False
     #camera 2
     else:
         if (dart[idx][1] > left[idx][1] or dart[idx][1] < right[idx][1] or
             dart[idx][0] < bot[idx][0] or dart[idx][0] > top[idx][0]):
+
             logging.debug("idx: " + str(idx) + " " + str(dart[idx][1]) +
                     " " + str(top[idx][1])) 
             return True    
 
+        else:
+
+            return False
 
 def normalise(x_i,x):
     """ Normalise the x_i value in the range 0 to 100.
