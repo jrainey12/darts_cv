@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from find_coords import FindCoords
+from find_coords_c1 import FindCoords
 from triangulate import main as triangulate
 from camera_streams import CameraStreams
 import time
@@ -14,8 +14,7 @@ def main():
 #    time.sleep(3)
 #    cameraStreams.connectCamTwo()
     
-    c1_frames = [None,None,None,None]
-    c2_frames = [None,None,None,None]
+    frames = [None,None,None,None]
 
     try:
 
@@ -27,30 +26,24 @@ def main():
                 
                 #back_1,back_2 = capFrames(cameraStreams) 
                 
-                back_1 = cv2.imread("test_imgs/c1_back.png")
-                back_2 = cv2.imread("test_imgs/c2_back.png")
+                back = cv2.imread("test_imgs/c1_back.png")
 
 
                 #cv2.imwrite("test_imgs/c1_back.png",back_1)
-                #cv2.imwrite("test_imgs/c2_back.png",back_2)
                     
-                c1_frames[x] = back_1
-                c2_frames[x] = back_2
+                frames[x] = back
             
             #wait to allow time to throw
 #            print ("Waiting for throw...")
             #time.sleep(5)
 
-            #dart_1,dart_2 = capFrames(cameraStreams)
+            #dart_1 = capFrames(cameraStreams)
             
-            dart_1 = cv2.imread("test_imgs/c1_dart_"+str(dart)+".png")
-            dart_2 = cv2.imread("test_imgs/c2_dart_"+str(dart)+".png")
+            dartIm = cv2.imread("test_imgs/c1_dart_"+str(dart)+".png")
 
             #cv2.imwrite("test_imgs/c1_dart_"+str(dart)+".png",dart_1)
-            #cv2.imwrite("test_imgs/c2_dart_"+str(dart)+".png",dart_2)
             
-            c1_frames[dart] = dart_1
-            c2_frames[dart] = dart_2
+            frames[dart] = dartIm
         
 
         #    back_1 = cv2.imread("test_imgs/c1_back.png")
@@ -70,42 +63,10 @@ def main():
 #    print (c1_frames)
 #    print (c2_frames)
 #    print("Finding coordinates...")
-    coords = find_coords.findCoordsMulti(c1_frames,c2_frames)
+    coords = find_coords.findCoordsMulti(frames)
 
     print(coords)
-    
-    if None in coords[0][0] or None in coords[0][1]:
-        
-        print("Out of scoring area.")
-        s_1 = [0,0]
-
-    else:
-   
-        s_1 = triangulate(coords[0][0],coords[0][1])
-    
-    
-    if None in coords[1][0] or None in coords[1][1]:
-
-        print("Out of scoring area.")
-        s_2 = [0,0]
-
-    else:
-
-        s_2 = triangulate(coords[1][0],coords[1][1])
-
-             
-    if None in coords[2][0] or None in coords[2][1]:
-        
-        print("Out of scoring area.")
-        s_3 = [0,0]
-
-    else:
-
-        s_3 = triangulate(coords[2][0],coords[2][1])
-     
-   
-    print(s_1,s_2,s_3)
-
+    return coords    
 #   cameraStreams.closeCamTwo()
  
 

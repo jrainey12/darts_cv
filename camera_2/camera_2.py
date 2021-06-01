@@ -4,73 +4,100 @@ import time
 import pickle
 import socket
 import select
+from find_coords_c2 import FindCoords
 
-def main():
+class CameraTwo():
 
-    cap = cv2.VideoCapture(0)
-    cap.set(3,1280)
-    cap.set(4,720)
-    cap.set(cv2.CAP_PROP_FPS, 10)
-    print ("FPS 1: ", cap.get(cv2.CAP_PROP_FPS))
-    print("ex:", cap.get(cv2.CAP_PROP_EXPOSURE))
-    
-    TCP_IP = '192.168.0.2'
-    TCP_PORT = 5090
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    
-    #sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY,1)
-   
-    sock.bind((TCP_IP,TCP_PORT))
-    sock.listen()
-
-    #ret,cam = cap.read()
-    #frame = cv2.flip(cam,0)
-#    s = frame.tobytes()
-#    s_len = bytes(str(len(s)),"utf-8")
-#    print (s_len)
-#    return
-    conn, addr = sock.accept()
-    
-    print("Sending Frames...")
-    while(True):
-        # Capture frame-by-frame
-        ret,cam = cap.read()
-        frame = cv2.flip(cam,0)
- 
-        s = frame.tobytes()
-        #print(len(bytes(s)))
-        #sock.send(bytes(len(s)))
-        l=b''
-     
-        timeout = 0.01  # in seconds
-        ready_sockets, _, _ = select.select(
-        [conn], [], [], timeout)
+    def __init__(self):
         
-        if ready_sockets: 
-            l = conn.recv(5)
-
-        if l == b'Hello':
-            print ("Hello")
-            #time.sleep(1)
-            print("Sending Length")
-            s_len = bytes(str(len(s)),"utf-8")
-            #print(s_len)
-            conn.send(s_len)
-            conn.sendall(s)
-
-        elif l == b'Stop!':
-            break
-        else:
-            print ("Empty")
+        self.cap = cv2.VideoCapture(0)
+        self.cap.set(3,1280)
+        self.cap.set(3,720)
         
-        #if cv2.waitKey(1) & 0xFF == ord('q'):
-         #   break
+        self.TCP_IP = '192.168.0.2'
+        self.TCP_PORT = 5090
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.conn = None    
+
+        self.frames=[None,None,None]
+
+        self.coords = None
+
+        self.findCoords = FindCoords()
+
+    def connectSocket(self):
+        """
+        Connect to the socket to send data.
+        """
+        self.sock.bind((self.TCP_IP,self.TCP_PORT))
+        sock.listen()
+        self.conn, addr = sock.accept()
 
 
-    # When everything done, release the capture
-    cap.release()
-    cv2.destroyAllWindows()
-    sock.close()
+    def captureFrame(self,idx):
+        """
+        Capture a single frame and add it to the frames list.
+        param: idx - index of dart.
+        """
+        _,cam = self.cap.read()
+        self.frames[idx] = cv2.flip(cam,0)
+        
+
+    def determineCoords(self):
+        """
+        Determine coordinates of darts in the frames using FindCoords.
+        """
+        self.coords = self.findCoords.findCoordsMulti(self.frames)
+
+
+    def sendCoords(self):
+        """
+        Send the coordinates of the darts to raspi 1.
+        """
+        dart = 1
+
+        while True:
+           
+            if dart == 4:
+                self.determineCoords()
+
+            l=b''
+
+            timeout = 0.01
+            ready_sockets,_,_=select.select[self.conn],[],[], timeout)
+        
+            if ready_sockets:
+                l = conn.recv(5)
+
+            if l == b'Hello':
+                if dart < 4:
+                    captureFrame(dart)
+                    dart += 1
+                    
+                else:
+                    c = pickle.dumps(self.coords)
+                    print len(c)
+                    
+                    c_len = bytes(str(len(c)),"utf-8")
+                    
+                    conn.send(c_len)
+                    conn.sendall(c)
+                    
+                    #reset dart and coords
+                    dart = 1
+                    self.coords = None
+
+
+            elif l == b'Stop!':
+                break
+
+        self.close()
+
+
+    def close(self): 
+        # When everything done, release the capture
+        self.cap.release()
+        self.sock.close()
 
 if __name__=='__main__':
 

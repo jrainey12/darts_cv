@@ -26,13 +26,13 @@ def main(c1_coords,c2_coords):
     bot = params["bot"]
 
     #Check if dart is within outer bounds
-    if check_bounds(0,dart,left,right,top,bot) or check_bounds(1,dart,left,right,top,bot):
+#    if check_bounds(0,dart,left,right,top,bot) or check_bounds(1,dart,left,right,top,bot):
         
-        logging.info("Dart is outside of camera bounds.")
+#        logging.info("Dart is outside of camera bounds.")
         
-        score = [0,0]
+#        score = [0,0]
 
-        return score
+#        return score
      
     #Array of outer points and dart points
     #x1 = cam 1, x2 = cam 2
