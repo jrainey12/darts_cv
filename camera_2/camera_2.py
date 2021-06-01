@@ -17,27 +17,31 @@ def main():
     TCP_IP = '192.168.0.2'
     TCP_PORT = 5090
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    #sock.connect((TCP_IP,TCP_PORT))
+    
+    #sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY,1)
+   
     sock.bind((TCP_IP,TCP_PORT))
     sock.listen()
 
-    ret,cam = cap.read()
-    frame = cv2.flip(frame,0)
-
-        
+    #ret,cam = cap.read()
+    #frame = cv2.flip(cam,0)
+#    s = frame.tobytes()
+#    s_len = bytes(str(len(s)),"utf-8")
+#    print (s_len)
+#    return
     conn, addr = sock.accept()
     
     print("Sending Frames...")
     while(True):
         # Capture frame-by-frame
         ret,cam = cap.read()
-        frame = cv2.flip(frame,0)
+        frame = cv2.flip(cam,0)
  
         s = frame.tobytes()
         #print(len(bytes(s)))
         #sock.send(bytes(len(s)))
         l=b''
-        
+     
         timeout = 0.01  # in seconds
         ready_sockets, _, _ = select.select(
         [conn], [], [], timeout)

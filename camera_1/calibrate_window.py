@@ -113,7 +113,7 @@ class CalibWindow(QMainWindow):
         elif calib_point == 0:
             
             #get a background frame from each camera
-            f1, f2 = self.cameraStreams.captureCalibFrame(calib_point)
+            f1, f2 = self.cameraStreams.captureCalibFrame()
             c1_frames[calib_point] = f1
             c2_frames[calib_point] = f2
 
@@ -121,7 +121,7 @@ class CalibWindow(QMainWindow):
             print ("CALIB DART AT POINT : ", calib_point)
             
             #get a single frame from each camera
-            f1, f2 = self.cameraStreams.captureCalibFrame(calib_point)
+            f1, f2 = self.cameraStreams.captureCalibFrame()
             c1_frames[calib_point] = f1
             c2_frames[calib_point] = f2
                   

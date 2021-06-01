@@ -6,7 +6,8 @@ from functools import partial
 #from scoring.camera_1 import main as get_scores
 import time
 from scoring.camera_streams import CameraStreams
-from scoring.find_coords import main as find_coords
+from scoring.find_coords import FindCoords
+from scoring.triangulate import main as triangulate
 
 class MainWindow(QMainWindow):
     """
@@ -293,11 +294,12 @@ class MainWindow(QMainWindow):
         #game.updateDartOne(0,0)
         #game.updateDartTwo(0,0)
         #game.updateDartThree(0,0)
-        
+                    
 
     #    pixmap = QtGui.QPixmap(image)
     #    self.im_preview.setPixmap(pixmap.scaled(self.im_preview.size()))
 
+        self.cameraStreams = CamerasStreams()
         self.start_button.show()
         self.end_button.hide()
 
@@ -332,13 +334,30 @@ class MainWindow(QMainWindow):
         Update the score variables and UI.
         """
         self.start_button.hide()
-
+        findCoords = FindCoords()
         self.CameraStreams.startCamStreams()
 
         frames = self.CameraStreams.getFrames()
         self.CameraStreams.reset()
 
-        D1,D2,D3 = find_coords(frames)
+        c1_frames = frames[0]
+        c2_frames = frames[1]
+
+        D1_C1 = findCoords.findCoords(c1_frames[0],c1_frames[1],1)
+        D1_C2 = findCoords.findCoords(c2_frames[0],c2_frames[1],2)
+        
+        D2_C1 = findCoords.findCoords(c1_frames[1],c1_frames[2],1)
+        D2_C2 = findCoords.findCoords(c2_frames[1],c2_frames[2],2)
+        
+        D3_C1 = findCoords.findCoords(c1_frames[2],c1_frames[3],1)
+        D3_C2 = findCoords.findCoords(c2_frames[2],c2_frames[3],2)
+          
+        D1 = triangulate(D1_C1,D1_C2) 
+        D2 = triangulate(D2_C1,D2_C2) 
+        D3 = triangulate(D3_C1,D3_C2) 
+
+       
+        #find_coords(frames)
         
         self.D1 = D1#[20,1]
         self.D2 = D2#[5,3]

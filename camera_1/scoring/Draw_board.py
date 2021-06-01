@@ -18,20 +18,23 @@ def main(x,y):
     nums = [10,15,2,17,3,19,7,16,8,11,14,9,12,5,20,1,18,4,13,6]
 
     img = np.zeros((width,height,3), np.uint8)
-    total_h = 40#45
+#    total_h = 40
+    total_h = 45
     mults = [int((17/total_h)*width),
             int((16/total_h)*width),
             int((10.5/total_h)*width),
             int((9.5/total_h)*width),
-            int((1.5/total_h)*width),
-            int((0.5/total_h)*width)] 
+            int((1.625/total_h)*width),
+            int((0.75/total_h)*width)] 
 
     #Scale the values to the outer double size.
     scalar = (mults[0]*2)/100
     diff = 4 - scalar/2
     print ("Scalar: ", scalar, "Diff: ", diff)
-    point = (np.float32(((100-x)*scalar)+(100*diff)), np.float32(((100-y)*scalar)+(100*diff))) 
-    
+
+#    point = (np.float32(((100-x)*scalar)+(100*diff)), np.float32(((100-y)*scalar)+(100*diff))) 
+    flat_diff = 60
+    point = (np.float32(((100-x)*scalar)+flat_diff),np.float32(((100-y)*scalar)+flat_diff))     
     point_v = (point[0]-(width/2), point[1]-(width/2))
     print ("POINT: ",point, "Point_v: ", point_v)
 
@@ -113,7 +116,7 @@ def main(x,y):
    # cv2.imshow("img",img)
    # cv2.waitKey(0)
     
-    return score, img
+    return sector, mult, img
 
 def clockwise(v1,v2):
     """

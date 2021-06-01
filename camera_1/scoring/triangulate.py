@@ -1,7 +1,8 @@
 import numpy as np
 import cv2
 import pickle as pkl
-from  Draw_board import main as get_score
+from Draw_board import main as get_score
+#from  scoring.Draw_board import main as get_score
 import logging 
 
 
@@ -12,8 +13,13 @@ def main(c1_coords,c2_coords):
     """
     #Dart pixel location
     #TODO: Get pixel coordinate of dart using auto segmentation method.
-    dart = [[832,375],[852,430]]
-    #dart = [c1_coords,c2_coords]
+ #   dart = [[832,375],[852,430]]
+    dart = [c1_coords,c2_coords]
+ #   dart = [[590, 232], [537, 170]]
+
+    print ("DART: ", dart)
+
+#    dart = [[1038,482],[899,324]]
     #Load camera calibration params and boundary points from pkl file.
     params = pkl.load(open("calib_params.pkl",'rb'))
  
@@ -24,12 +30,17 @@ def main(c1_coords,c2_coords):
     bot = params["bot"]
 
     #Check if dart is within outer bounds
-    if check_bounds(0,dart,left,right,top,bot) or check_bounds(1,dart,left,right,top,bot):
+#    if check_bounds(0,dart,left,right,top,bot) or check_bounds(1,dart,left,right,top,bot):
+        
+#        print(left)
+#        print(right)
+#        print(top)
+#        print(bot)
 
-        score = 0
-        logging.info("Score: " + str(score))
+#        score = 0
+#        logging.info("Score: " + str(score))
 
-        return score
+#        return score
      
     #Array of outer points and dart points
     #x1 = cam 1, x2 = cam 2
@@ -90,11 +101,12 @@ def main(c1_coords,c2_coords):
     board_x = 100 - z_norm
     board_y = x_norm
 
+    print ("BD:",board_x,board_y)
     #Get score and board model from Draw_board
-    score, board = get_score(board_x,board_y)
-    logging.info("Dart Score: " + str(score))
+    sector,mult, board = get_score(board_x,board_y)
+#    logging.info("Dart Score: " + str(score))
 
-    return score
+    return [sector,mult]
 
     #show board
     #cv2.imshow("board", board)
@@ -119,6 +131,7 @@ def check_bounds(idx,dart,left,right,top,bot):
             (dart[idx][0] < bot[idx][0]) or (dart[idx][0] > top[idx][0])):
             logging.debug("idx: " +  str(idx) + " " + str(dart[idx][0]) +
                     " " + str(left[idx][0])) 
+
             return True
     #camera 2
     else:
