@@ -57,24 +57,24 @@ class CameraTwo():
         dart = 1
 
         while True:
-           
-            if dart == 4:
-                self.determineCoords()
-
+            
             l=b''
 
             timeout = 0.01
             ready_sockets,_,_=select.select[self.conn],[],[], timeout)
         
             if ready_sockets:
-                l = conn.recv(5)
+                l = self.conn.recv(5)
 
             if l == b'Hello':
-                if dart < 4:
-                    captureFrame(dart)
-                    dart += 1
+                
+                captureFrame(dart)
+                dart += 1
                     
-                else:
+                if dart == 4:
+                    
+                    self.determineCoords()
+
                     c = pickle.dumps(self.coords)
                     print len(c)
                     
