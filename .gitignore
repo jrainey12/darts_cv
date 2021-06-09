@@ -1,4 +1,6 @@
 calib_images/
+temp/
+old_cams/
 test/seg_out/
 camera_1/test_imgs/
 camera_1/scoring/test_imgs/
@@ -7,3 +9,4 @@ camera_1/scoring/seg_out/
 *.png
 *.pyc
 *.pdf
+*.jpg

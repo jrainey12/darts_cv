@@ -3,12 +3,17 @@ from Draw_board import main as draw
 import logging
 from test_find_coords_c1 import main as cam_1
 from camera_2.test_find_coords_c2 import main as cam_2
+from find_coords import FindCoords
 
 
 def main():
 
-    cam_1_coords = cam_1()
-    cam_2_coords = cam_2()
+    coords = [[[[457, 203]], [[718, 258]], [[747, 31]]], [[[355, 55]], [[363, 87]], [[252, 87]]]]
+
+
+
+    cam_1_coords = coords[0]#cam_1()
+    cam_2_coords = coords[1]#cam_2()
 
     print ("CAM 1:", cam_1_coords[0])
     print ("CAM 2:", cam_2_coords[0])

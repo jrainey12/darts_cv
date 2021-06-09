@@ -11,10 +11,12 @@ def main(c1_coords,c2_coords):
     Triangulate the position of a dart and get the score.
     return: score - the score of the dart.
     """
+
     #Dart pixel location
     dart = [c1_coords,c2_coords]
-
-    #print ("DART: ", dart)
+#    dart = [[869,259],[604,87]]
+#    dart = [[933,431],[438,340]]
+    print ("DART: ", dart)
 
     #Load camera calibration params and boundary points from pkl file.
     params = pkl.load(open("calib_params.pkl",'rb'))
@@ -25,6 +27,10 @@ def main(c1_coords,c2_coords):
     top = params["top"]
     bot = params["bot"]
 
+    print ("Left: ", left) 
+    print ("right: ", right)
+    print ("top: ", top)
+    print ("bot: ", bot)
     #Check if dart is within outer bounds
 #    if check_bounds(0,dart,left,right,top,bot) or check_bounds(1,dart,left,right,top,bot):
         
@@ -54,7 +60,7 @@ def main(c1_coords,c2_coords):
     #triangulate the outer points and dart points 
     points = cv2.triangulatePoints(params["P1"],params["P2"],x1_und,x2_und)
     
-    #print ("Points: ", points)
+    print ("Points: ", points)
     
     #scale points to get euclidian points
     points_3d = []
@@ -68,7 +74,7 @@ def main(c1_coords,c2_coords):
     
         points_3d.append([x,y,z])
 
-    #print ("3D points: ",points_3d)
+    print ("3D points: ",points_3d)
 
     #get x and z values from each 3D point
     x_vals = []
@@ -77,12 +83,12 @@ def main(c1_coords,c2_coords):
         x_vals.append(i[0])
         z_vals.append(i[2])
 
-    #print ("Unknown point: ", points_3d[-1])
+    print ("Unknown point: ", points_3d[-1])
 
     #Normalise the Z and X values in the range 0 to 100.
-    #print ("Z axis")
+    print ("Z axis")
     z_norm = normalise(points_3d[-1][2],z_vals)
-    #print ("X axis")
+    print ("X axis")
     x_norm = normalise(points_3d[-1][0],x_vals)
 
     logging.debug("z Norm: "+ str(z_norm))
@@ -90,9 +96,9 @@ def main(c1_coords,c2_coords):
 
     #Convert the coords to work with Draw_board
     board_x = 100 - z_norm
-    board_y = x_norm
+    board_y = 100 - x_norm
 
-    #print ("BD:",board_x,board_y)
+    print ("BD:",board_x,board_y)
     #Get score and board model from Draw_board
     sector,mult, board = get_score(board_x,board_y)
 #    logging.info("Dart Score: " + str(score))
@@ -100,8 +106,8 @@ def main(c1_coords,c2_coords):
     return [sector,mult]
 
     #show board
-    #cv2.imshow("board", board)
-    #cv2.waitKey(0)
+    cv2.imshow("board", board)
+    cv2.waitKey(0)
 
 
 def check_bounds(idx,dart,left,right,top,bot):
@@ -162,6 +168,6 @@ def normalise(x_i,x):
 
 if __name__=='__main__':
 
-    logging.basicConfig(format='%(message)s',level=logging.INFO)
+    logging.basicConfig(format='%(message)s',level=logging.DEBUG)
 
     main()

@@ -5,6 +5,7 @@ import numpy as np
 from paramiko.client import SSHClient
 import time 
 from find_coords_c1 import FindCoords
+import pickle
 
 class CameraOne:
     """
@@ -22,7 +23,7 @@ class CameraOne:
         self.c1_coords = []
         self.c2_coords = []
 
-        self.startCamTwoStream()
+#        self.startCamTwoStream()
         #time.sleep(2)
         self.connectCamTwo()
 
@@ -34,13 +35,13 @@ class CameraOne:
         """
         self.camTwoSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         conn = False
-        while not con:
+        while not conn:
             try:
                 self.camTwoSock.connect((self.TCP_IP,self.TCP_PORT)) 
                 conn = True
             except:
                 conn = False
-                time.sleep(0.5)
+                time.sleep(1)
                 print ("Retrying...")
             
     def startCamTwoStream(self):
@@ -57,17 +58,20 @@ class CameraOne:
         Save a captured frame from camera 2.
         param: idx - index of frame.
         """
+        print("hello ", idx)
         self.camTwoSock.sendall(b'Hello')
-             
+        time.sleep(1)             
+        
         if idx == 3:
+            self.determineCoords()
             length = None
             print("Waiting on length...")
-            length = self.camTwoSock.recv(7)
-            print(length)
-
-            cam_2_data = self.recvall(self.camTwoSock,int((length)))
+            #length = self.camTwoSock.recv(7)
+            #print(length)
+            cam_2_data = self.camTwoSock.recv(500)
+            #cam_2_data = self.recvall(self.camTwoSock,int((199)))
             self.c2_coords = pickle.loads(cam_2_data)
- 
+            print ("c2 coords:", self.c2_coords)
 
     def closeCamTwo(self):
         """
@@ -103,11 +107,11 @@ class CameraOne:
         ret, cam = cap.read()
         frame = cv2.flip(cam,0)
         self.c1_frames[0] = frame
-        self.captureCamTwoFrame(0)
+       # self.captureCamTwoFrame(0)
  
         #min and max threshold counts.
-        t_min = 100
-        t_max = 10000
+        t_min = 900#500
+        t_max = 100000
         dart = 1
         
         #set comp_frame as background frame.
@@ -121,7 +125,8 @@ class CameraOne:
             ret,cam = cap.read()
             gray = cv2.cvtColor(cam.copy(), cv2.COLOR_BGR2GRAY)
             gray_diff = cv2.absdiff(gray, cv2.cvtColor(comp_frame,cv2.COLOR_BGR2GRAY))
-            retval, thresh = cv2.threshold(gray_diff, 80, 255, cv2.THRESH_BINARY)
+
+            retval, thresh = cv2.threshold(gray_diff, 50, 255, cv2.THRESH_BINARY)#80
            
             #count non zero pixels after thresh  
             non_zero = cv2.countNonZero(thresh)
@@ -129,26 +134,32 @@ class CameraOne:
             #If within ranges save frames
             if non_zero > t_min and non_zero < t_max:
  
-                #time.sleep(0.5)          
+                time.sleep(0.5)          
+                cv2.imwrite("seg_out/detection_frame_"+str(dart)+".jpg", thresh)
                 print("Dart Found")
                 c1_fr = cv2.flip(cam.copy(),0)
                 self.c1_frames[dart] = c1_fr#cam.copy()
                 self.captureCamTwoFrame(dart)
-                print ("Updating comp frame") 
+                print ("Updating comp frame")
                 comp_frame = cam.copy()
                 dart += 1
                 #time.sleep(1) 
                 print ("Waiting for dart ...")
                 if dart == 4:
-                    
-                    self.determineCoords()
+                    print("Ending...")
+                    #self.determineCoords()
                     self.stream = False
                     
     def determineCoords(self):
         """
         Determine the coordinates of the darts in the camera 1 frames using FindCoords.
         """
-        self.c1_coords = self.findCoords.findCoordsMulti(self.frames)
+        for i,x in enumerate(self.c1_frames):
+            print(i,type(x))
+            cv2.imwrite("seg_out/test_examples/frame_"+str(i)+".jpg",x)
+        
+        
+        self.c1_coords = self.findCoords.findCoordsMulti(self.c1_frames)
 
     def captureCalibFrame(self):
         """
@@ -197,9 +208,9 @@ class CameraOne:
         Reset the frames at the end of a turn.
         """
         self.stream = False
-        self.camTwoSock = None
+        #self.camTwoSock = None
         self.c1_frames = [None,None,None,None]
-        self.c1_frames = [None,None,None,None]
+        #self.c1_frames = [None,None,None,None]
 
     def shutdownSocket(self):
         """
@@ -209,11 +220,11 @@ class CameraOne:
         self.camTwoSock.shutdown()
         self.camTwoSock.close()
 
-    def getFrames(self):
+    def getCoords(self):
         """
-        Return the frames captured from camera 1 and camera 2.
+        Return the coords captured from camera 1 and camera 2.
         """
-        return (self.c1_frames,self.c2_frames)
+        return (self.c1_coords,self.c2_coords)
 
     def getSock(self):
         """

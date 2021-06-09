@@ -13,20 +13,31 @@ def main(x,y):
     width = 800
     height = 800
   
+#    x =  57.20333852542197
+#    y =  24.531035400067957
+
+    print ("orig_x: ", x)
+    print ("orig_y: ", y)
 
     #sector numbers
     nums = [10,15,2,17,3,19,7,16,8,11,14,9,12,5,20,1,18,4,13,6]
 
     img = np.zeros((width,height,3), np.uint8)
-#    total_h = 40
-    total_h = 45
-    mults = [int((17/total_h)*width),
-            int((16/total_h)*width),
-            int((10.5/total_h)*width),
-            int((9.5/total_h)*width),
-            int((1.625/total_h)*width),
-            int((0.75/total_h)*width)] 
+    total_h = 40
+#    total_h = 22.5#45
+#    mults = [int((17/total_h)*width),
+#            int((16/total_h)*width),
+#            int((10.5/total_h)*width),
+#            int((9.5/total_h)*width),
+#            int((1.625/total_h)*width),
+#            int((0.75/total_h)*width)] 
 
+    mults = [int(width/2),
+            int((16/17)*(width/2)),
+            int((10.5/17)*(width/2)),
+            int((9.5/17)*(width/2)),
+            int((1.625/17)*(width/2)),
+            int((0.75/17)*(width/2))]
     #Scale the values to the outer double size.
     scalar = (mults[0]*2)/100
 #    diff = 4 - scalar/2
@@ -35,10 +46,15 @@ def main(x,y):
 #    point = (np.float32(((100-x)*scalar)+(100*diff)), np.float32(((100-y)*scalar)+(100*diff))) 
  
     flat_diff = 60
-    x = np.float32(((100-x)*scalar)+flat_diff)
-    y = np.float32(((100-y)*scalar)+flat_diff)     
+    x = np.float32(((x)*scalar))#+flat_diff)
+    y = np.float32(((y)*scalar))#+flat_diff)     
 
+    #x = np.float32(((100-x)*scalar)+flat_diff)
+    #y = np.float32(((100-y)*scalar)+flat_diff)     
+
+    
     point = (x,y)
+    #point_v = (point[0]-(width/2), point[1]-(width/2))
     point_v = (point[0]-(width/2), point[1]-(width/2))
     print ("POINT: ",point, "Point_v: ", point_v)
 
@@ -115,6 +131,7 @@ def main(x,y):
     else:
         score = mult
     print("SCORE: ", score)
+
     cv2.circle(img, (int(point[0]),int(point[1])), 3, (0,0,255),2) 
     cv2.imwrite("dartBoard.png", img)
    # cv2.imshow("img",img)

@@ -40,7 +40,7 @@ def main():
             #dart_1 = capFrames(cameraStreams)
             
             dartIm = cv2.imread("test_imgs/c1_dart_"+str(dart)+".png")
-
+#            dartIm = cv2.imread("calib_imgs/test_dart_"+str(dart)+".jpg")
             #cv2.imwrite("test_imgs/c1_dart_"+str(dart)+".png",dart_1)
             
             frames[dart] = dartIm
@@ -66,9 +66,9 @@ def main():
     coords = find_coords.findCoordsMulti(frames)
 
     print(coords)
-    return coords    
+    #return coords    
 #   cameraStreams.closeCamTwo()
- 
+
 
 
 def capFrames(cameraStreams):

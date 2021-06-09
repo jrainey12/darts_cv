@@ -53,13 +53,13 @@ class FindCoords():
         backFrame = self.cropFrame(frames[dart-1])
         dartFrame = self.cropFrame(frames[dart])
                
-        cam = self.processFrames(backFrame, dartFrame)
+        cam = self.processFrames(backFrame, dartFrame,dart)
         
         #put result in queue
         self.Q.put((dart,[cam]))
         
 
-    def processFrames(self,backFrame,dartFrame):
+    def processFrames(self,backFrame,dartFrame,dart):
         """
         Process a single pair of frames to determine the x,y coords.
         param: backFrame - background frame.
@@ -71,7 +71,7 @@ class FindCoords():
 
         #use the edges to get the position from the contours 
         try:
-            x,y = self.dartContours(edges, dartFrame)
+            x,y = self.dartContours(edges, dartFrame,dart)
         except:
             #if dartContours fails return 0,0 for x and y.
             print ("FAILED!!")
@@ -79,9 +79,10 @@ class FindCoords():
         
 
         #adjust y coord for bounds
-        final_y = y + (720 - self.bounds[2])
-        
-        return [x,y]
+       # final_y = y + (720 - self.bounds[2])
+        final_y = y + self.bounds[0]
+
+        return [x,final_y]
    
     def cropFrame(self,frame):
         """
@@ -94,6 +95,7 @@ class FindCoords():
                 self.bounds[1]:self.bounds[1]+self.bounds[3]].copy()
 
         return outFrame
+
 
     def findCoordsSingle(self,backFrame,dartFrame):
         """
@@ -192,7 +194,7 @@ class FindCoords():
         return edges
 
 
-    def dartContours(self, edges, dartFrame):
+    def dartContours(self, edges, dartFrame,dart):
         """
         Find the contours from the edges and use bounding box to determine position.
         """
@@ -212,28 +214,55 @@ class FindCoords():
         #box outputs 4 coords starting with the lowest and working clockwise.
         box = cv2.boxPoints(rect)
         box = np.int0(box)
-       # print ("box",box)
+        print ("box",box)
         
         #get second lowest y point
         #(the box if often slightly larger than the dart so getting the second
         #lowest y point give a closer result)  
-        low_y = box[3][1]
-        #print ("Y:",low_y)
+   #     low = box[0]
+   #     for x in box:
+   #         if x[1] <= low[1]:
+   #             low = x
+   #             low_2 = low
+   #         elif x[1] < low_2[1]:
+   #             low_2 = x
+        sorted_box = sorted(box, key=lambda x: x[1],reverse=True)
+        #print (sorted_box)
+        print(sorted_box[1])
+        
+        low_2 = sorted_box[1]
+
+        if low_2[0] < box[0][0]:
+            print("lowest on right")
+            box_l = box[1][0]
+            box_r = box[0][0]
+            mid_x = box_l - int(abs(box_l - box_r)/2)
+
+        else:
+            print("lowest on left")
+            #otherwise second lowest is box[3]
+            box_l = box[0][0]
+            box_r = box[3][0]
+        
+        mid_x = box_l + int(abs(box_l - box_r)/2)
+
+
+        low_y = low_2[1]
+        print ("Y:",low_y)
 
         #find mid point between lowest x points
-        box_l = box[0][0]
-        box_r = box[3][0]
+        #box_l = box[0][0]
+        #box_r = box[3][0]
 
-        mid_x = box_l - int((box_l - box_r)/2)
-       
-        #print("X:", mid_x)
+               
+        print("X:", mid_x)
 
         #draw the rectangle and a circle marking the point
-#        rectangle = cv2.drawContours(dartFrame,[box],0,(0,255,0),2)
+        rectangle = cv2.drawContours(dartFrame,[box],0,(0,255,0),2)
         
-#        circle = cv2.circle(rectangle,(mid_x,low_y), 2, (0,0,255), 2)
+        circle = cv2.circle(rectangle,(mid_x,low_y), 2, (0,0,255), 2)
 
-#        cv2.imwrite("seg_out/27_rectangle.jpg",rectangle)
+        cv2.imwrite("seg_out/27_rectangle_"+str(dart)+".jpg",rectangle)
  
         #print("X centre: ", xcoord_cen, "Y centre: ", y+h)
 
