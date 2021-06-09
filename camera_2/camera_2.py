@@ -64,7 +64,7 @@ class CameraTwo():
         
         cap = cv2.VideoCapture(0)
         cap.set(3,1280)
-        cap.set(3,720)
+        cap.set(4,720)
         
         _,cam = cap.read()
         self.frames[0] = cv2.flip(cam,0)

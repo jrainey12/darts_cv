@@ -6,16 +6,19 @@ from Draw_board import main as get_score
 import logging 
 
 
-def main(c1_coords,c2_coords):
+def main():#c1_coords,c2_coords):
     """
     Triangulate the position of a dart and get the score.
     return: score - the score of the dart.
     """
 
     #Dart pixel location
-    dart = [c1_coords,c2_coords]
+#    dart = [c1_coords,c2_coords]
+
 #    dart = [[869,259],[604,87]]
-#    dart = [[933,431],[438,340]]
+#    dart = [[1006,374],[1042,427]]#1
+#    dart = [[965,392],[933,442]]#5
+    dart = [[617,467],[323,483]]#dub 8
     print ("DART: ", dart)
 
     #Load camera calibration params and boundary points from pkl file.
@@ -95,7 +98,7 @@ def main(c1_coords,c2_coords):
     logging.debug("x Norm: " + str(x_norm))
 
     #Convert the coords to work with Draw_board
-    board_x = 100 - z_norm
+    board_x = z_norm
     board_y = 100 - x_norm
 
     print ("BD:",board_x,board_y)

@@ -26,7 +26,8 @@ def main():
                 
                 #back_1,back_2 = capFrames(cameraStreams) 
                 
-                back = cv2.imread("test_imgs/c1_back.png")
+                #back = cv2.imread("test_imgs/c1_back.png")
+                back = cv2.imread("test_examples/eg_2/c_2/frame_0.jpg")
 
 
                 #cv2.imwrite("test_imgs/c1_back.png",back_1)
@@ -39,8 +40,8 @@ def main():
 
             #dart_1 = capFrames(cameraStreams)
             
-            dartIm = cv2.imread("test_imgs/c1_dart_"+str(dart)+".png")
-#            dartIm = cv2.imread("calib_imgs/test_dart_"+str(dart)+".jpg")
+           # dartIm = cv2.imread("test_imgs/c1_dart_"+str(dart)+".png")
+            dartIm = cv2.imread("test_examples/eg_2/c_2/frame_"+str(dart)+".jpg")
             #cv2.imwrite("test_imgs/c1_dart_"+str(dart)+".png",dart_1)
             
             frames[dart] = dartIm

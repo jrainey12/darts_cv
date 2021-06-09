@@ -66,7 +66,7 @@ class FindCoords():
         return: [x,y] - xy coords of dart from single cam.
         """
         #segment frames and get edges of dart.
-        edges = self.segmentFrames(backFrame,dartFrame)
+        edges = self.segmentFrames(backFrame,dartFrame,dart)
 
         #use the edges to get the position from the contours 
         try:
@@ -126,7 +126,7 @@ class FindCoords():
         return [x,y]
         
         
-    def segmentFrames(self, backFrame, dartFrame):
+    def segmentFrames(self, backFrame, dartFrame,dart):
         """
         Perform background subtraction and segmentation on the dart frame to 
         get a clean set of edges of the dart.
@@ -147,7 +147,7 @@ class FindCoords():
         diff_img = (diff*255).astype("uint8")
         diff_img_inv = np.invert(diff_img)
     
-        cv2.imwrite("seg_out/20_diff_.jpg",diff_img)
+        cv2.imwrite("seg_out/"+str(dart)+"_0_diff_.jpg",diff_img)
         #cv2.imwrite("seg_out/21_diff_inv.jpg",diff_img_inv)
 
         #threshold the diff image
@@ -155,41 +155,45 @@ class FindCoords():
 #        print (th)
         _,thresh = cv2.threshold(diff_img, 170, 255, cv2.THRESH_BINARY_INV)
         
-        cv2.imwrite("seg_out/22_thresh_1.jpg",thresh)
+        cv2.imwrite("seg_out/"+str(dart)+"_2_thresh_1.jpg",thresh)
 
         
         #perform morphological operations to create a mask.
         kernel_1 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (6,6)) 
-        op = cv2.morphologyEx(thresh,cv2.MORPH_OPEN,kernel_1)
-        cl = cv2.morphologyEx(op,cv2.MORPH_CLOSE, kernel_1)
-        cv2.imwrite("seg_out/22_thresh_morph.jpg",cl)
+        op = cv2.morphologyEx(thresh,cv2.MORPH_OPEN,kernel_1,iterations=1)
+        cl = cv2.morphologyEx(op,cv2.MORPH_CLOSE, kernel_1,iterations=4)
+        cv2.imwrite("seg_out/"+str(dart)+"_2_thresh_morph.jpg",cl)
         
-        #dilate
-        kernel_2 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (10,10))
-        mask = cv2.dilate(cl, kernel_2)#iterations=1)#6)
+        #erode
+        kernel_2 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (4,4))
+        erode = cv2.erode(cl, kernel_2, iterations=3)
 
-        cv2.imwrite("seg_out/23_mask_.jpg",mask)
+        #dilate
+        kernel_3 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (10,10))
+        mask = cv2.dilate(cl, kernel_3,iterations=6)
+
+        cv2.imwrite("seg_out/"+str(dart)+"_3_mask_.jpg",mask)
         
         #remove noise outside of the mask
         cut = cv2.bitwise_and(thresh,thresh, mask=mask)
         
-        cv2.imwrite("seg_out/24_cut.jpg",cut)
+        cv2.imwrite("seg_out/"+str(dart)+"_4_cut.jpg",cut)
         
-        kernel_3 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(4,4))
+        #closing
+        closing = cv2.morphologyEx(cut,cv2.MORPH_CLOSE,kernel_2,iterations=4)
+        cv2.imwrite("seg_out/"+str(dart)+"_5_closing.jpg",out)
 
-        closing = cv2.morphologyEx(cut,cv2.MORPH_CLOSE,kernel_3,iterations=4)
-
-        kernel_4 = np.ones((3,3),dtype='uint8')
+        kernel_4 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3)) 
         out = cv2.erode(closing,kernel_4,iterations=2)
-        cv2.imwrite("seg_out/25_closing.jpg",out)
+        cv2.imwrite("seg_out/"+str(dart)+"_6_erode.jpg",out)
 
         #Blur and canny edge detection
         #img = cv2.GaussianBlur(out,(5,5),0)
-        edges = cv2.Canny(out, 50, 150)
+        #edges = cv2.Canny(out, 50, 150)
         
-        cv2.imwrite("seg_out/26_edges.jpg",edges)
+        #cv2.imwrite("seg_out/26_edges.jpg",edges)
 
-        return edges
+        return out#edges
 
 
     def dartContours(self, edges, dartFrame,dart):
@@ -248,7 +252,7 @@ class FindCoords():
         
         circle = cv2.circle(rectangle,(mid_x,low_y), 2, (0,0,255), 2)
 
-        cv2.imwrite("seg_out/27_rectangle_"+str(dart)+".jpg",rectangle)
+        cv2.imwrite("seg_out/"+str(dart)+"_7_rectangle.jpg",rectangle)
  
         #print("X centre: ", xcoord_cen, "Y centre: ", y+h)
 

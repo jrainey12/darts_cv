@@ -83,13 +83,13 @@ def calibrate(camera):
 
     # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
     objp = np.zeros((6*9,3), np.float32)
-    objp[:,:2] = np.mgrid[0:9,0:6].T.reshape(-1,2)
+    objp[:,:2] = np.mgrid[0:9,0:6].T.reshape(-1,2)#[0:9,0:6]
 
     # Arrays to store object points and image points from all the images.
     objpoints = [] # 3d point in real world space
     imgpoints = [] # 2d points in image plane.
 
-    images = glob.glob("calib_images/test/cam_"+ camera + "/*.jpg")
+    images = glob.glob("calib_images/cam_"+ camera + "/*.jpg")
     #print(images)
     for fname in images:
         logging.info(fname)
@@ -133,6 +133,6 @@ def calibrate(camera):
 
 if __name__=='__main__':
     
-    logging.basicConfig(format='%(message)s',level=logging.INFO)
+    logging.basicConfig(format='%(message)s',level=logging.DEBUG)
 
     main()
