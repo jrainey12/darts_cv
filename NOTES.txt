@@ -1,0 +1,3 @@
+Rather than using individual camera calib just go straight to stereo calib
+then use rectify and finally triangulate.
+Use the focal length to calculate the instrinsics and use this instead of guessing, should improve accuracy.

@@ -10,11 +10,11 @@ def main(x,y):
     Draw a mockup of a dart board, determine the location of a detected dart
     and calculate the score of the dart.
     """
-    width = 800
-    height = 800
+    width = 1000
+    height = 1000
   
- #   x =  0
- #   y =  50
+#    x =  50
+#    y =  20
 
     print ("orig_x: ", x)
     print ("orig_y: ", y)
@@ -23,7 +23,7 @@ def main(x,y):
     nums = [10,15,2,17,3,19,7,16,8,11,14,9,12,5,20,1,18,4,13,6]
 
     img = np.zeros((width,height,3), np.uint8)
-    total_h = 34
+#    total_h = 34
 #    total_h = 45
 #    mults = [int((17/total_h)*width),
 #            int((16/total_h)*width),
@@ -46,9 +46,9 @@ def main(x,y):
 
 #    point = (np.float32(((100-x)*scalar)+(100*diff)), np.float32(((100-y)*scalar)+(100*diff))) 
  
-    flat_diff = 0#60
-    x = np.float32(((x)*scalar)+flat_diff)
-    y = np.float32(((y)*scalar)+flat_diff)     
+#    flat_diff = 0#60
+    x = np.float32(((x)*scalar))#+flat_diff)
+    y = np.float32(((y)*scalar))#+flat_diff)     
 
     #x = np.float32(((100-x)*scalar)+flat_diff)
     #y = np.float32(((100-y)*scalar)+flat_diff)     

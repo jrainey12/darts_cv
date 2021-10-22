@@ -14,11 +14,13 @@ def main():#c1_coords,c2_coords):
 
     #Dart pixel location
 #    dart = [c1_coords,c2_coords]
+#dart = [[802,470], [475,493]]#left
+    #dart =  [[722,350], [575,376]]#right
+    #dart =  [[1202,384], [998,422]]#top
+    #bot =  [[300,396], [98,405]]#bot
 
-#    dart = [[869,259],[604,87]]
-#    dart = [[1006,374],[1042,427]]#1
-#    dart = [[965,392],[933,442]]#5
-    dart = [[617,467],[323,483]]#dub 8
+    dart = [[1015,389],[808,420]]#trip20
+    #dart = [[801, 456],[352,348]]#14(eg1)
     print ("DART: ", dart)
 
     #Load camera calibration params and boundary points from pkl file.
@@ -45,37 +47,39 @@ def main():#c1_coords,c2_coords):
      
     #Array of outer points and dart points
     #x1 = cam 1, x2 = cam 2
-    x1 = np.array([left[0],right[0],top[0],bot[0],dart[0]],dtype=np.float)
-    x2 = np.array([left[1],right[1],top[1],bot[1],dart[1]],dtype=np.float)
+    x1 = np.array([left[0],right[0],top[0],bot[0],dart[0]],dtype=np.float32)
+    x2 = np.array([left[1],right[1],top[1],bot[1],dart[1]],dtype=np.float32)
 
     #Undistort the outer points and dart points
-    x1_und = np.array([])
-    x2_und = np.array([])
+    #x1_und = np.array([])
+    #x2_und = np.array([])
     
     x1_und = cv2.undistortPoints(x1,params["mtx_1"],params["dist_1"],
-            x1_und,params["R1"],params["P1"])
+            None,params["R1"],params["P1"])
 
     x2_und = cv2.undistortPoints(x2,params["mtx_2"],params["dist_2"],
-            x2_und,params["R2"],params["P2"])
-
+            None,params["R2"],params["P2"])
 
 
     #triangulate the outer points and dart points 
-    points = cv2.triangulatePoints(params["P1"],params["P2"],x1_und,x2_und)
-    
-    print ("Points: ", points)
+#    points4d = cv2.triangulatePoints(params["P1"],params["P2"],x1_und,x2_und)
+   
+    points4d = cv2.triangulatePoints(params["P1"],params["P2"],x1_und,x2_und)
+    print ("Points4d: ", points4d)
     
     #scale points to get euclidian points
-    points_3d = []
-    for i,j in enumerate(points[0]):
+    points_3d = (points4d[:3, :]/points4d[3, :]).T
+
+    #points_3d = []
+    #for i,j in enumerate(points4d[0]):
         #scaling factor
-        sf = points[3][i]
+    #    sf = points4d[3][i]
         
-        x = j/sf
-        y = points[1][i]/sf
-        z = points[2][i]/sf
+    #    x = j/sf
+    #    y = points4d[1][i]/sf
+    #    z = points4d[2][i]/sf
     
-        points_3d.append([x,y,z])
+    #    points_3d.append([x,y,z])
 
     print ("3D points: ",points_3d)
 

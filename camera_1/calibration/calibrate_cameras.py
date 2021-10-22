@@ -6,40 +6,48 @@ import logging
 
 def main():
     """
-    Calibrate the stero cameras and save the paramater to a pkl file.
+    Calibrate the stero cameras and save the paramaters to a pkl file.
     """
-    
-    #Perform calibration for each camera
-    #TODO: Add a way to easily get frames for calibration.
+    logging.info("Calibrating stero cameras...")
+
+    #focal length
+    f = 3.6/0.0014
+    #Principal point
+    c_x,c_y = 640,360
+    #horizonal translation
+    #h_t = 800*f
+
+    #camera intrinsic matrix
+    intrinsic = np.array([[f,0,c_x],[0,f,c_y],[0,0,1]], np.int32)
+
+    #Get object points from calib images for each camera
     #camera 1
-    ret, mtx_1, dist_1, rvecs_1, tvecs_1, objpoints_1, imgpoints_1, img_1 = calibrate("1")
-    
+    objpoints_1, imgpoints_1, img_1 = get_obj_img_points("1",intrinsic)
+
     #camera 2
-    ret_2, mtx_2, dist_2, rvecs_2, tvecs_2, objpoints_2, imgpoints_2, img_2 = calibrate("2")
-    
-    #Get left, right, top and bottom points 
+    objpoints_2, imgpoints_2, img_2 = get_obj_img_points("2",intrinsic)
+
+    #Get left, right, top and bottom calibration points
     #TODO: Automatically get points using segmentation method.
 
-
     #coords of four outer points. format: [[cam1 X,cam1 Y],[cam2 X,cam2 Y]].
+    left = [[802,470],[475,493]]
+    right = [[722,350],[575,376]]
+    top = [[1202,384],[998,422]]
+    bot = [[300,396],[98,405]]
 
-    #left = [[874,485],[554,532]]
-    #right = [[622,337],[717,378]]
-    #top = [[1177,393],[1236,458]] 
-    #bot = [[146,379],[174,408]]
-
-    left = [[874,500],[554,548]]
-    right = [[622,333],[716,385]]
-    top = [[1177,392],[1236,460]] 
-    bot = [[147,381],[174,408]]
 
     # Calibrate the cameras in stereo
-    mtx_1,dist_1,mtx_2,dist_2,R,T,_,_ = calibrate_stereo(mtx_1,dist_1,mtx_2,dist_2,
-            objpoints_1,imgpoints_1,imgpoints_2,img_1)
-   
+    calib_criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+
+    calib_flags = cv2.CALIB_FIX_PRINCIPAL_POINT + cv2.CALIB_FIX_FOCAL_LENGTH + cv2.CALIB_USE_INTRINSIC_GUESS
+
+    _,mtx_1,dist_1,mtx_2,dist_2, R,T,_,_ = cv2.stereoCalibrate(objpoints_1, imgpoints_1,imgpoints_2,intrinsic, None, intrinsic, None, img_1.shape[::-1], criteria=calib_criteria, flags=calib_flags )
+
 
     #Get rotation and projection matrices for stereo cameras. 
-    R1,R2,P1,P2,_,_,_ = cv2.stereoRectify(mtx_1,dist_1,mtx_2,dist_2,(1280,720),R,T)
+    #rect_flags=cv2.CALIB_ZERO_DISPARITY
+    R1,R2,P1,P2,_,_,_ = cv2.stereoRectify(mtx_1,dist_1,mtx_2,dist_2,(1280,720),R,T)#,flags=rect_flags)
 
     params = { "left" : left,
              "right" : right,
@@ -56,23 +64,11 @@ def main():
 
     pkl.dump(params, open("calib_params.pkl", 'wb'))
 
-    logging.info("Parameters saved to calib_params.pkl")
-
-def calibrate_stereo(mtx_1,dist_1,mtx_2,dist_2,objpoints,imgpoints_1,imgpoints_2,img_1):
-    """
-    Perform stereo calibration.
-    """
-    calib_criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-
-    calib_flags = cv2.CALIB_FIX_INTRINSIC
-    
-    ret,mtx_1,dist_1,mtx_2,dist_2, R,T,E,F = cv2.stereoCalibrate(objpoints, imgpoints_1,imgpoints_2,mtx_1, dist_1, mtx_2, dist_2, img_1.shape[::-1], criteria=calib_criteria, flags=calib_flags )
-    
-    
-    return mtx_1,dist_1,mtx_2,dist_2,R,T,E,F
+    logging.info("Calibration parameters saved to calib_params.pkl")
 
 
-def calibrate(camera):
+
+def get_obj_img_points(camera,intrinsic):
     """
     Perform calibration on a single camera.
     param: camera - index of the camera to be calibrated.
@@ -85,54 +81,70 @@ def calibrate(camera):
     objp = np.zeros((6*9,3), np.float32)
     objp[:,:2] = np.mgrid[0:9,0:6].T.reshape(-1,2)#[0:9,0:6]
 
-    # Arrays to store object points and image points from all the images.
+    #square_size = 0.023
+    #objp = objp * square_size
+
+    # Lists to store object points and image points from all the images.
     objpoints = [] # 3d point in real world space
     imgpoints = [] # 2d points in image plane.
 
-    images = glob.glob("calib_images/cam_"+ camera + "/*.jpg")
+    images = glob.glob("calib_images_triang/calib_images/cam_"+ camera + "/*.jpg")
     #print(images)
+
     for fname in images:
-        logging.info(fname)
+        logging.debug(fname)
         img = cv2.imread(fname)
         gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
         # Find the chess board corners
         ret, corners = cv2.findChessboardCorners(gray, (9,6),None)
 
+        #Test sharpness of images
+        _, sharp = cv2.estimateChessboardSharpness(gray,(9,6),corners)
+
+        sh = 0
+        for x in sharp:
+            sh +=x[2]
+
+        avg_sh = sh/len(sharp)
+        logging.debug("sharpness:" + str(avg_sh))
+        #check if average sharpness is under 3
+        if avg_sh > 3:
+            logging.debug("NOT SHARP ENOUGH!")
+
         # If found, add object points, image points (after refining them)
-        if ret == True:
+        if ret:
             logging.debug("TRUE")
             objpoints.append(objp)
+            imgpoints.append(corners)
 
-            corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
-            imgpoints.append(corners2)
 
-            # Draw and display the corners
-            #img = cv2.drawChessboardCorners(img, (9,6), corners2,ret)
-            #cv2.imshow('img',img)
-            #cv2.imwrite("calib_images/calib_img.jpg",img)
-            #cv2.waitKey(500)
 
-    #cv2.destroyAllWindows()
+    cv2.destroyAllWindows()
    
-    ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1],None,None)
-    
-    #Calculate the error of the calibration points.
-    mean_error = 0
-    for i in range(len(objpoints)):
-        imgpoints2, _ = cv2.projectPoints(objpoints[i], rvecs[i], tvecs[i], mtx, dist)
-        error = cv2.norm(imgpoints[i],imgpoints2, cv2.NORM_L2)/len(imgpoints2)
-        mean_error += error
 
-    logging.debug("total error: " + str(mean_error/len(objpoints)))
-    
+    if logging.root.level == logging.DEBUG:
 
-    return ret,mtx,dist,rvecs,tvecs,objpoints,imgpoints,gray
+        logging.info("Calculating error...")
+
+        #Calculate the error of the calibration points.
+        mean_error = 0
+        #get rvecs and tvecs
+        ret,mtx,dist,rvecs,tvecs =cv2.calibrateCamera(objpoints,imgpoints,gray.shape[::-1],intrinsic,None)
+
+        #calculate calibration error
+        for i in range(len(objpoints)):
+            imgpoints2, _ = cv2.projectPoints(objpoints[i], rvecs[i], tvecs[i], mtx, dist)
+            error = cv2.norm(imgpoints[i],imgpoints2, cv2.NORM_L2)/len(imgpoints2)
+            mean_error += error
+        logging.debug("total error: " + str(mean_error/len(objpoints)))
+
+    return objpoints,imgpoints,gray
 
 
 
 if __name__=='__main__':
     
-    logging.basicConfig(format='%(message)s',level=logging.DEBUG)
+    logging.basicConfig(format='%(message)s',level=logging.INFO)
 
     main()

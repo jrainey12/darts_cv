@@ -2,8 +2,8 @@ from triangulate import main as triangulate
 from Draw_board import main as draw
 import logging
 from test_find_coords_c1 import main as cam_1
-from camera_2.test_find_coords_c2 import main as cam_2
-from find_coords import FindCoords
+#from camera_2.test_find_coords_c2 import main as cam_2
+#from find_coords import FindCoords
 
 
 def main():
